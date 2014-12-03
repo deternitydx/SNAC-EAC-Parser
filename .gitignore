@@ -1,3 +1,10 @@
+# Python Files #
+/snac
+*.pyc
+
+# EAC Records #
+*.xml
+
 *.class
 
 # Package Files #
