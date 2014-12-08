@@ -11,6 +11,9 @@ output.write("@prefix snac: <http://socialarchive.iath.virginia.edu/control/term
 output.write("@prefix snacead: <http://socialarchive.iath.virginia.edu/control/term#ead/> .\n")
 output.write("@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n")
 output.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n")
+output.write("@prefix schema: <http://schema.org/> .\n")
+output.write("@prefix edm: <http://www.europeana.eu/schemas/edm/> .\n")
+output.write("@prefix rdaGr2: <http://RDVocab.info/ElementsGr2/> .\n")
 
 
 # Neo4J Test
@@ -36,6 +39,7 @@ g.add_proxy("referencedIn", ReferencedIn)
 # XML Test
 namespaces = { "snac" : "urn:isbn:1-931666-33-4" ,
         "snac2" : "http://socialarchive.iath.virginia.edu/control/term#",
+        "schema" : "http://schema.org/",
         "xlink" : "http://www.w3.org/1999/xlink"}
 ET.register_namespace("snac", "urn:isbn:1-931666-33-4")
 ET.register_namespace("snac2", "http://socialarchive.iath.virginia.edu/control/term#")
@@ -74,11 +78,11 @@ for filename in files:
     # Handle entity type
     node = root.find(".//snac:entityType", namespaces)
     if node.text == "person":
-        entity_type = "foaf:Person"
+        entity_type = "schema:Person"
     elif node.text == "corporateBody":
-        entity_type = "foaf:Organization"
+        entity_type = "schema:Organization"
     else:
-        entity_type = "foaf:Agent"
+        entity_type = "schema:Thing"
 
     # Handle names
     first = True;
@@ -143,16 +147,16 @@ for filename in files:
 
     # Write out the triples
     output.write(''.join(["<",identifier,"> a <", entity_type, "> .\n"]))
-    output.write(''.join(["<",identifier,"> foaf:name \"", name, "\" .\n"]))
+    output.write(''.join(["<",identifier,"> schema:name \"", name, "\" .\n"]))
     for altname in alt_names:
         if altname is not None:
-            output.write(''.join(["<",identifier,"> snac:altName \"", altname, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> schema:alternateName \"", altname, "\" .\n"]))
     for subject in subjects:
         if subject is not None:
             output.write(''.join(["<",identifier,"> snac:hasSubject \"", subject, "\" .\n"]))
     for nationality in nationalities:
         if nationality is not None:
-            output.write(''.join(["<",identifier,"> snac:hasNationality \"", nationality, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> schema:nationality \"", nationality, "\" .\n"]))
     for language in languages:
         if language is not None:
             output.write(''.join(["<",identifier,"> snac:hasLanguage \"", language, "\" .\n"]))
@@ -171,4 +175,5 @@ for filename in files:
     for same in sameas:
         if same is not None:
             output.write(''.join(["<",identifier,"> owl:sameAs <", same, "> .\n"]))
+    # schema: has deathDate and birthDate
 
