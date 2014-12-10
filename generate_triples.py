@@ -1,8 +1,5 @@
 import codecs
 import os
-# Import the bulbs graph ORM
-from bulbs.neo4jserver import Graph
-from relationships import *
 # Import XML parser
 import xml.etree.ElementTree as ET
 
@@ -18,32 +15,13 @@ output.write("@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n")
 output.write("@prefix rdaGr2: <http://RDVocab.info/ElementsGr2/> .\n")
 
 
-# Neo4J Test
-g = Graph()
-g.add_proxy("people", Person)
-g.add_proxy("corporation", Corporation)
-g.add_proxy("document", Document)
-g.add_proxy("associated", AssociatedWith)
-g.add_proxy("corresponded", CorrespondedWith)
-g.add_proxy("referencedIn", ReferencedIn)
-
-#gw = g.people.create(name="Washington George")
-#tj = g.people.create(name="Jefferson Thomas")
-#rel = g.associated.create(gw, tj)
-#gw.save()
-#tj.save()
-#rel.save()
-
-#print g
-#print "Vertices:",  g.V
-#print "Edges:" , g.E
-
-# XML Test
+# Define the namespaces to use
 namespaces = { "snac" : "urn:isbn:1-931666-33-4" ,
         "snac2" : "http://socialarchive.iath.virginia.edu/control/term#",
         "schema" : "http://schema.org/",
         "xlink" : "http://www.w3.org/1999/xlink",
         "snac3" : "http://socialarchive.iath.virginia.edu/"}
+# Register the namespaces
 ET.register_namespace("snac", "urn:isbn:1-931666-33-4")
 ET.register_namespace("snac2", "http://socialarchive.iath.virginia.edu/control/term#")
 ET.register_namespace("snac3", "http://socialarchive.iath.virginia.edu/")
@@ -55,11 +33,8 @@ for filename in os.listdir(path):
 
     tree = ET.parse(os.path.join(path,filename))
     root = tree.getroot()
-    #for child in root:
-    #    print child.tag, child.attrib
-    #    for little in child:
-    #        print little.tag, little.attrib
 
+    # Definitions
     identifier = ""
     subjects = []
     nationalities = []
@@ -74,9 +49,8 @@ for filename in os.listdir(path):
     entity_type = ""
     start = None
     end = None
-    #need birth/death/active dates
 
-    # Handle identifier
+    # Handle Unique Identifier
     node = root.find(".//snac:recordId", namespaces)
     identifier = node.text
 
@@ -117,12 +91,9 @@ for filename in os.listdir(path):
             if "nationalityOfEntity" in attr[1]:
                 nationalities.append(node[0].text)
         
-    # Handle places
+    # Handle places (only include likelySame places from GeoNames)
     for node in root.findall(".//snac3:placeEntryLikelySame", namespaces):
         places.append(node.get("vocabularySource"))
-        # this will be tricky:
-        #   if LikelySameAs exists, then use it and also grab coordinates and geonames entry for owl:sameAs
-        #   else, then just grab the text that exists (node[0].text)
 
     # Handle occupations
     for node in root.findall(".//snac:occupation", namespaces):
@@ -142,26 +113,8 @@ for filename in os.listdir(path):
             corresponded.append(link)
         elif "sameAs" in role:
             sameas.append(link)
-        
-        #for attr in node.attrib.items():
-        #print node.attrib.items()
 
-    #print "ID: " , identifier
-    #print "Name: " , name
-    #print "Alternate Names: ", alt_names
-    #print "Subjects: ", subjects
-    #print "Nationalities: ", nationalities
-    #print "Languages: ", languages
-    #print "Places: ", places
-    #print "Occupations: ", occupations
-    #print "Associated with: ", associated
-    #print "Corresponded with: ", corresponded
-    #print "Same as: ", sameas
-
-    # So, we can easily write these out as triples.  It will be much harder to build the neo4j database.
-    # To build the database, we must first insert all the nodes, then make a second pass for the edges (associated withs)
-
-    # Write out the triples
+    # Write out the triples for this file
     output.write(''.join(["<",identifier,"> a <", entity_type, "> .\n"]))
     output.write(''.join(["<",identifier,"> skos:prefLabel \"", name, "\" .\n"]))
     if start is not None:
@@ -198,5 +151,4 @@ for filename in os.listdir(path):
     for same in sameas:
         if same is not None:
             output.write(''.join(["<",identifier,"> owl:sameAs <", same, "> .\n"]))
-    # schema: has deathDate and birthDate
 
