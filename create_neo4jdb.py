@@ -11,10 +11,12 @@ import xml.etree.ElementTree as ET
 # Neo4J Test
 g = Graph()
 g.add_proxy("agents", Agent)
-g.add_proxy("document", Document)
+g.add_proxy("places", Place)
+g.add_proxy("documents", Document)
 g.add_proxy("associated", AssociatedWith)
 g.add_proxy("corresponded", CorrespondedWith)
 g.add_proxy("referencedIn", ReferencedIn)
+g.add_proxy("location", Location)
 
 g.vertices.occindex = g.factory.get_index(Vertex, ExactIndex, "occupationIndex")
 g.vertices.subindex = g.factory.get_index(Vertex, ExactIndex, "subjectIndex")
@@ -47,6 +49,7 @@ for filename in os.listdir(path):
     alt_names = []
     realname = ""
     places = []
+    placesIDs = []
     occupations = []
     languages = []
     associated = []
@@ -99,7 +102,8 @@ for filename in os.listdir(path):
         
     # Handle places
     for node in root.findall(".//snac3:placeEntryLikelySame", namespaces):
-        places.append(node.get("vocabularySource"))
+        places.append([node.get("vocabularySource"), node.text, node.get("latitude"), node.get("longitude")])
+        placesIDs.append(node.get("vocabularySource"))
 
     # Handle occupations
     for node in root.findall(".//snac:occupation", namespaces):
@@ -108,6 +112,13 @@ for filename in os.listdir(path):
     # Handle languages
     for node in root.findall(".//snac:languageUsed", namespaces):
         languages.append(node[0].get("languageCode"))
+    
+    # Handle sameAs relationships
+    for node in root.findall(".//snac:cpfRelation", namespaces):
+        role = node.get("{http://www.w3.org/1999/xlink}arcrole")
+        link = node.get("{http://www.w3.org/1999/xlink}href")
+        if "sameAs" in role:
+            sameas.append(link)
         
     # Create a node in the database for this object
     # Create an Agent
@@ -117,8 +128,6 @@ for filename in os.listdir(path):
             name=realname)
     if alt_names:
         pnode.altnames=alt_names
-    if places:
-        pnode.places=places
     if subjects:
         pnode.subjects=subjects
         for sub in subjects:
@@ -133,7 +142,26 @@ for filename in os.listdir(path):
         pnode.startDate=start
     if end:
         pnode.endDate=end
+    if sameas:
+        pnode.sameAs=sameas
+    # Handle places (need to create them if they don't exist)
+    if places:
+        pnode.places=placesIDs
+        for place in places:
+            tonodes = g.places.index.lookup(identifier=place[0])
+            tonode = None
+            if tonodes:
+                tonode = tonodes.next()
+            else:
+                tonode = g.places.create(identifier=place[0], name=place[1], latitude=place[2], longitude=place[3])
 
+            if tonode:
+                    rel = g.location.create(pnode, tonode)
+                    rel.save()
+
+
+
+    # Save the node so we can work on the next
     pnode.save()
 
 
@@ -147,7 +175,6 @@ for filename in os.listdir(path):
 
     associated = []
     corresponded = []
-    sameas = []
     
     # Handle identifier
     node = root.find(".//snac:recordId", namespaces)

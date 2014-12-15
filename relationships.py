@@ -27,6 +27,7 @@ class Agent(Node):
     languages = List()
     nationalities = List()
     places = List()
+    sameAs = List()
 
 class Place(Node):
     element_type = "place"
@@ -56,3 +57,6 @@ class CorrespondedWith(Relationship):
 
 class ReferencedIn(Relationship):
     label = "referencedIn"
+
+class Location(Relationship):
+    label = "associatedPlace"
