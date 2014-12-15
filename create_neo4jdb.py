@@ -1,3 +1,4 @@
+import datetime
 import codecs
 import os
 # Import the bulbs graph ORM
@@ -7,6 +8,7 @@ from bulbs.element import Vertex
 # Import XML parser
 import xml.etree.ElementTree as ET
 
+print "Starting processing at ", datetime.datetime.now()
 
 # Neo4J Test
 g = Graph()
@@ -36,10 +38,13 @@ ET.register_namespace("snac2", "http://socialarchive.iath.virginia.edu/control/t
 ET.register_namespace("snac3", "http://socialarchive.iath.virginia.edu/")
 ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
 
+# Counter
+counter = 0
+
 # For each file, parse and fill out node information
 path = "sample/"
 for filename in os.listdir(path):
-
+    counter = counter + 1
     tree = ET.parse(os.path.join(path,filename))
     root = tree.getroot()
 
@@ -164,12 +169,19 @@ for filename in os.listdir(path):
     # Save the node so we can work on the next
     pnode.save()
 
+    if counter % 1000 == 0:
+        print "Imported ", counter, " nodes at ", datetime.datetime.now()
 
+# Print that the nodes have been created
+print "Nodes have been successfully created at ", datetime.datetime.now()
+
+# Counter
+counter = 0
 
 # For each file, parse and fill out edge information
 path = "sample/"
 for filename in os.listdir(path):
-
+    counter = counter + 1
     tree = ET.parse(os.path.join(path,filename))
     root = tree.getroot()
 
@@ -216,7 +228,8 @@ for filename in os.listdir(path):
                     rel = g.corresponded.create(pnode, tonode)
                     rel.save()
 
-# Print the information in the database
-print g
-print "Vertices: ", g.V
-print "Edges: ", g.E
+    if counter % 1000 == 0:
+        print "Imported ", counter, " node-edges at ", datetime.datetime.now()
+
+print "Edges have been successfully created at ", datetime.datetime.now()
+
