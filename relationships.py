@@ -1,6 +1,6 @@
 # Provides the graph entities for our server
 from bulbs.model import Node, Relationship
-from bulbs.property import String, Integer, DateTime
+from bulbs.property import String, Integer, DateTime, List
 from bulbs.utils import current_datetime
     #print "ID: " , identifier
     #print "Name: " , name
@@ -14,15 +14,19 @@ from bulbs.utils import current_datetime
     #print "Corresponded with: ", corresponded
     #print "Same as: ", sameas
 
-class Person(Node):
-    element_type = "person"
-    identifier = String(nullable=False)
+class Agent(Node):
+    element_type = "agent"
+    snac_type = String(nullable=False, indexed=True)
+    identifier = String(nullable=False, indexed=True)
     name = String(nullable=False)
-
-class Corporation(Node):
-    element_type = "corporate"
-    identifier = String(nullable=False)
-    name = String(nullable=False)
+    altNames = List()
+    startDate = String()
+    endDate = String()
+    occupations = List()
+    subjects = List()
+    languages = List()
+    nationalities = List()
+    places = List()
 
 class Place(Node):
     element_type = "place"
