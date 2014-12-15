@@ -31,7 +31,7 @@ class Agent(Node):
 
 class Place(Node):
     element_type = "place"
-    identifier = String(nullable=False)
+    identifier = String(nullable=False, indexed=True)
     name = String(nullable=False)
     latitude = String()
     longitude = String()
