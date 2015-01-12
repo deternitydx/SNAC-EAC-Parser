@@ -13,6 +13,8 @@ output.write("@prefix schema: <http://schema.org/> .\n")
 output.write("@prefix edm: <http://www.europeana.eu/schemas/edm/> .\n")
 output.write("@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n")
 output.write("@prefix rdaGr2: <http://RDVocab.info/ElementsGr2/> .\n")
+output.write("@prefix dc: <http://purl.org/dc/elements/1.1/> .\n")
+output.write("@prefix dcterms: <http://purl.org/dc/terms/> .\n")
 
 
 # Define the namespaces to use
@@ -43,6 +45,8 @@ for filename in os.listdir(path):
     places = []
     occupations = []
     languages = []
+    referencedin = []
+    creatorof = []
     associated = []
     corresponded = []
     sameas = []
@@ -103,7 +107,7 @@ for filename in os.listdir(path):
     for node in root.findall(".//snac:languageUsed", namespaces):
         languages.append(node[0].get("languageCode"))
 
-    # Handle relationships
+    # Handle cpf relationships
     for node in root.findall(".//snac:cpfRelation", namespaces):
         role = node.get("{http://www.w3.org/1999/xlink}arcrole")
         link = node.get("{http://www.w3.org/1999/xlink}href")
@@ -113,6 +117,15 @@ for filename in os.listdir(path):
             corresponded.append(link)
         elif "sameAs" in role:
             sameas.append(link)
+    
+    # Handle resource relationships
+    for node in root.findall(".//snac:resourceRelation", namespaces):
+        role = node.get("{http://www.w3.org/1999/xlink}arcrole")
+        link = node.get("{http://www.w3.org/1999/xlink}href")
+        if "referencedIn" in role:
+            referencedin.append(link)
+        elif "creatorOf" in role:
+            creatorof.append(link)
 
     # Write out the triples for this file
     output.write(''.join(["<",identifier,"> a <", entity_type, "> .\n"]))
@@ -151,4 +164,10 @@ for filename in os.listdir(path):
     for same in sameas:
         if same is not None:
             output.write(''.join(["<",identifier,"> owl:sameAs <", same, "> .\n"]))
+    for doc in referencedin:
+        if doc is not None:
+            output.write(''.join(["<",identifier,"> dcterms:isReferencedBy <", doc, "> .\n"]))
+    for doc in creatorof:
+        if doc is not None:
+            output.write(''.join(["<",doc,"> dc:creator <", identifier, "> .\n"]))
 
