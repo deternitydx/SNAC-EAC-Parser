@@ -42,7 +42,7 @@ ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
 counter = 0
 
 # For each file, parse and fill out node information
-path = "sample/"
+path = "../../latestMerge/merge/"
 for filename in os.listdir(path):
     counter = counter + 1
     tree = ET.parse(os.path.join(path,filename))
@@ -179,7 +179,6 @@ print "Nodes have been successfully created at ", datetime.datetime.now()
 counter = 0
 
 # For each file, parse and fill out edge information
-path = "sample/"
 for filename in os.listdir(path):
     counter = counter + 1
     tree = ET.parse(os.path.join(path,filename))
