@@ -1,10 +1,13 @@
 import codecs
 import os
+import fileinput
+import sys
 # Import XML parser
 import xml.etree.ElementTree as ET
 
 # Set up the triple output
-output = codecs.open("output.txt", encoding='utf-8', mode='w')
+#output = codecs.open(sys.stdout, encoding='utf-8', mode='w')
+output = codecs.getwriter('utf8')(sys.stdout)
 output.write("@prefix snac: <http://socialarchive.iath.virginia.edu/control/term#> .\n")
 output.write("@prefix snacead: <http://socialarchive.iath.virginia.edu/control/term#ead/> .\n")
 output.write("@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n")
@@ -29,11 +32,10 @@ ET.register_namespace("snac2", "http://socialarchive.iath.virginia.edu/control/t
 ET.register_namespace("snac3", "http://socialarchive.iath.virginia.edu/")
 ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
 
-# For each file, parse and look at
-path = "sample/"
-for filename in os.listdir(path):
+# For each file given on standard input, parse and look at
+for filename in fileinput.input():
 
-    tree = ET.parse(os.path.join(path,filename))
+    tree = ET.parse(filename.strip())
     root = tree.getroot()
 
     # Definitions
