@@ -131,32 +131,32 @@ for filename in fileinput.input():
 
     # Write out the triples for this file
     output.write(''.join(["<",identifier,"> a <", entity_type, "> .\n"]))
-    output.write(''.join(["<",identifier,"> skos:prefLabel \"", name, "\" .\n"]))
+    output.write(''.join(["<",identifier,"> skos:prefLabel '''", name, "''' .\n"]))
     if start is not None:
-        output.write(''.join(["<",identifier,"> edm:start \"", start, "\" .\n"]))
+        output.write(''.join(["<",identifier,"> edm:start '''", start, "''' .\n"]))
     if end is not None:
-        output.write(''.join(["<",identifier,"> edm:end \"", end, "\" .\n"]))
+        output.write(''.join(["<",identifier,"> edm:end '''", end, "''' .\n"]))
     
     if hidden_type == 'person':
-        output.write(''.join(["<",identifier,"> foaf:name \"", name, "\" .\n"]))
+        output.write(''.join(["<",identifier,"> foaf:name '''", name, "''' .\n"]))
     for altname in alt_names:
         if altname is not None:
-            output.write(''.join(["<",identifier,"> skos:altLabel \"", altname, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> skos:altLabel '''", altname, "''' .\n"]))
     for subject in subjects:
         if subject is not None:
-            output.write(''.join(["<",identifier,"> edm:isRelatedTo \"", subject, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> edm:isRelatedTo '''", subject, "''' .\n"]))
     for nationality in nationalities:
         if nationality is not None:
-            output.write(''.join(["<",identifier,"> schema:nationality \"", nationality, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> schema:nationality '''", nationality, "''' .\n"]))
     for language in languages:
         if language is not None:
-            output.write(''.join(["<",identifier,"> rdaGr2:languageOfThePerson \"", language, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> rdaGr2:languageOfThePerson '''", language, "''' .\n"]))
     for place in places:
         if place is not None:
             output.write(''.join(["<",identifier,"> edm:hasMet <", place, "> .\n"]))
     for occupation in occupations:
         if occupation is not None:
-            output.write(''.join(["<",identifier,"> rdaGr2:professionOrOccupation \"", occupation, "\" .\n"]))
+            output.write(''.join(["<",identifier,"> rdaGr2:professionOrOccupation '''", occupation, "''' .\n"]))
     for assn in associated:
         if assn is not None:
             output.write(''.join(["<",identifier,"> edm:hasMet <", assn , "> .\n"]))
