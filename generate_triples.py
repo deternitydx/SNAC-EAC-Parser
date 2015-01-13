@@ -130,6 +130,7 @@ for filename in fileinput.input():
             creatorof.append(link)
 
     # Write out the triples for this file
+    # NOTE: We must take care of entities that start or end with a ', as that will create elements with '''' and cause problems
     output.write(''.join(["<",identifier,"> a <", entity_type, "> .\n"]))
     output.write(''.join(["<",identifier,"> skos:prefLabel '''", name, "''' .\n"]))
     if start is not None:
