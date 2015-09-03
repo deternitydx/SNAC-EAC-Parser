@@ -1,4 +1,3 @@
-import codecs
 import os
 import fileinput
 import sys
@@ -7,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 # Set up the triple output
 #output = codecs.open(sys.stdout, encoding='utf-8', mode='w')
-output = codecs.getwriter('utf8')(sys.stdout)
+output = sys.stdout
 output.write("@prefix snac: <http://socialarchive.iath.virginia.edu/control/term#> .\n")
 output.write("@prefix snacead: <http://socialarchive.iath.virginia.edu/control/term#ead/> .\n")
 output.write("@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n")
